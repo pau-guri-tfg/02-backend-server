@@ -3,7 +3,7 @@ const prefix = "/riot-api";
 
 export function registerRiotApiEndpoints(app) {
   app.get(prefix + "/summoner/:gameName/:tagLine", async (req, res) => {
-    const gameName = req.params.name;
+    const gameName = req.params.gameName;
     const tagLine = req.params.tagLine;
     console.log("GET /riot-api/summoner/" + gameName + "/" + tagLine);
 
