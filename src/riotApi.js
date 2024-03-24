@@ -2,12 +2,12 @@ import axios from "axios";
 const prefix = "/riot-api";
 
 export function registerRiotApiEndpoints(app) {
-  app.get(prefix + "/summoner/:gameName/:tagLine", async (req, res) => {
+  app.get(prefix + "/account/:gameName/:tagLine", async (req, res) => {
     const gameName = req.params.gameName;
     const tagLine = req.params.tagLine;
-    console.log("GET /riot-api/summoner/" + gameName + "/" + tagLine);
+    console.log("GET /riot-api/account/" + gameName + "/" + tagLine);
 
-    const playerData = await getSummonerData(gameName, tagLine)
+    const playerData = await getAccountData(gameName, tagLine)
       .then(response => response.data)
       .catch(error => {
         console.error("Error", error.response.data);
@@ -40,7 +40,7 @@ export function registerRiotApiEndpoints(app) {
   });
 }
 
-export function getSummonerData(gameName, tagLine) {
+export function getAccountData(gameName, tagLine) {
   return axios.get(process.env.RIOT_EUROPE_API_URL + `/riot/account/v1/accounts/by-riot-id/${gameName}/${tagLine}?api_key=${process.env.RIOT_API_KEY}`);
 }
 
