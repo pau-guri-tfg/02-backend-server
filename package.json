@@ -2,15 +2,18 @@
   "name": "02-backend-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./src/index.js",
+  "type": "module",
   "scripts": {
-    "start": "node index.js"
+    "start": "node --env-file=.env ./src/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.20.2",
-    "express": "^4.19.1"
+    "axios": "^1.6.8",
+    "cors": "^2.8.5",
+    "express": "^4.19.1",
+    "mongodb": "^6.5.0"
   }
 }
