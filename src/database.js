@@ -25,29 +25,34 @@ export function registerDatabaseEndpoints(app) {
     const gameId = req.params.gameId;
     const players = req.body;
     console.log('Received new players for game', gameId, players);
+    res.status(201).send();
   });
 
   app.patch(prefix + '/games/:gameId/players', async (req, res) => {
     const gameId = req.params.gameId;
     const players = req.body;
     console.log('Received updated players for game', gameId, players);
+    res.status(201).send();
   });
 
   app.post(prefix + '/games/:gameId/gamedata', async (req, res) => {
     const gameId = req.params.gameId;
     const gameData = req.body;
     console.log('Received new game data for game', gameId, gameData);
+    res.status(201).send();
   });
 
   app.patch(prefix + '/games/:gameId/gamedata', async (req, res) => {
     const gameId = req.params.gameId;
     const gameData = req.body;
     console.log('Received updated game data for game', gameId, gameData);
+    res.status(201).send();
   });
 
   app.put(prefix + '/games/:gameId/events', async (req, res) => {
     const gameId = req.params.gameId;
     const events = req.body;
     console.log('Received events for game', gameId, events);
+    res.status(201).send();
   });
 }
