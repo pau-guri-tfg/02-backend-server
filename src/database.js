@@ -24,7 +24,11 @@ export function registerDatabaseEndpoints(app) {
   app.post(prefix + '/games/:gameId/players', async (req, res) => {
     const gameId = req.params.gameId;
     const players = req.body;
-    console.log('Received new players for game', gameId, players);
+
+    const playersWithGameId = players.map(player => ({ ...player, gameId }));
+
+    console.log('Received new players for game', gameId, playersWithGameId);
+    //db.collection('players').insertMany(players.map(player => ({ ...player, gameId })));
     res.status(201).send();
   });
 
