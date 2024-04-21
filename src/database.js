@@ -11,9 +11,6 @@ const mongoClient = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
-mongoClient.on('commandStarted', event => {
-  console.log("Database command called: " + event.commandName);
-});
 
 // games database is harcoded for now
 const db = mongoClient.db(process.env.MONGODB_GAMES_DB);
@@ -45,7 +42,7 @@ export function registerDatabaseEndpoints(app) {
     console.log('Received new players for game', gameId);
     db.collection('players').insertMany(playersWithGameId)
       .then(() => {
-        console.log("201 Created");
+        console.log("201 Created entries in 'players' collection");
         res.status(201).send();
       })
       .catch(e => {
@@ -68,7 +65,7 @@ export function registerDatabaseEndpoints(app) {
 
     Promise.all(promises)
       .then(() => {
-        console.log("201 Created");
+        console.log("201 Updated entries in 'players' collection");
         res.status(201).send();
       })
       .catch(e => {
@@ -101,7 +98,7 @@ export function registerDatabaseEndpoints(app) {
     console.log('Received new gamedata for game', gameId);
     db.collection('gamedata').insertOne(gamedataWithGameId)
       .then(() => {
-        console.log("201 Created");
+        console.log("201 Created entry in 'gamedata' collection");
         res.status(201).send();
       })
       .catch(e => {
@@ -118,7 +115,7 @@ export function registerDatabaseEndpoints(app) {
     console.log('Received updated game data for game', gameId);
     db.collection('gamedata').updateOne({ gameId }, { $set: gameData })
       .then(() => {
-        console.log("201 Created");
+        console.log("201 Updated entry in 'gamedata' collection");
         res.status(201).send();
       })
       .catch(e => {
@@ -137,7 +134,7 @@ export function registerDatabaseEndpoints(app) {
     console.log('Received events for game', gameId);
     db.collection('events').replaceOne({ gameId }, eventsWithGameId, { upsert: true })
       .then(() => {
-        console.log("201 Created");
+        console.log("201 Created or updated entry in 'events' collection");
         res.status(201).send();
       })
       .catch(e => {
