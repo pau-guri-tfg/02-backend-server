@@ -12,7 +12,7 @@ const mongoClient = new MongoClient(uri, {
   }
 });
 mongoClient.on('commandStarted', event => {
-  console.log(event);
+  console.log("Database command called: " + event.commandName);
 });
 
 // games database is harcoded for now
@@ -59,7 +59,7 @@ export function registerDatabaseEndpoints(app) {
     const players = req.body;
 
     // update players
-    console.log('Received updated players for game', gameId, players);
+    console.log('Received updated players for game', gameId);
 
     let promises = [];
     players.forEach(player => {
@@ -115,7 +115,7 @@ export function registerDatabaseEndpoints(app) {
     const gameData = req.body;
 
     // update gamedata
-    console.log('Received updated game data for game', gameId, gameData);
+    console.log('Received updated game data for game', gameId);
     db.collection('gamedata').updateOne({ gameId }, { $set: gameData })
       .then(() => {
         console.log("201 Created");
@@ -134,7 +134,7 @@ export function registerDatabaseEndpoints(app) {
     // insert events (replace old events)
     const eventsWithGameId = { ...events, gameId };
 
-    console.log('Received events for game', gameId, events);
+    console.log('Received events for game', gameId);
     db.collection('events').replaceOne({ gameId }, eventsWithGameId, { upsert: true })
       .then(() => {
         console.log("201 Created");
