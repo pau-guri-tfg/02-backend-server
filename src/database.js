@@ -22,6 +22,11 @@ const prefix = '/database';
 
 export function registerDatabaseEndpoints(app) {
   app.post(prefix + '/games/:gameId/players', async (req, res) => {
+    if (!mongoClient.isConnected()) {
+      res.status(500).send("Database is not connected.");
+      return;
+    }
+
     const gameId = req.params.gameId;
     const players = req.body;
 
@@ -55,6 +60,11 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.patch(prefix + '/games/:gameId/players', async (req, res) => {
+    if (!mongoClient.isConnected()) {
+      res.status(500).send("Database is not connected.");
+      return;
+    }
+
     const gameId = req.params.gameId;
     const players = req.body;
 
@@ -78,6 +88,11 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.post(prefix + '/games/:gameId/gamedata', async (req, res) => {
+    if (!mongoClient.isConnected()) {
+      res.status(500).send("Database is not connected.");
+      return;
+    }
+
     const gameId = req.params.gameId;
     const gameData = req.body;
 
@@ -111,6 +126,11 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.patch(prefix + '/games/:gameId/gamedata', async (req, res) => {
+    if (!mongoClient.isConnected()) {
+      res.status(500).send("Database is not connected.");
+      return;
+    }
+
     const gameId = req.params.gameId;
     const gameData = req.body;
 
@@ -128,6 +148,11 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.put(prefix + '/games/:gameId/events', async (req, res) => {
+    if (!mongoClient.isConnected()) {
+      res.status(500).send("Database is not connected.");
+      return;
+    }
+
     const gameId = req.params.gameId;
     const events = req.body;
 
@@ -144,5 +169,36 @@ export function registerDatabaseEndpoints(app) {
         console.error(e);
         res.status(500).send(e);
       });
+  });
+
+  // SERVER-SENT EVENTS
+  app.get(prefix + '/event-stream', (req, res) => {
+    if (!mongoClient.isConnected()) {
+      res.status(500).send("Database is not connected.");
+      return;
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const collections = ['players', 'gamedata', 'events'];
+    let changeStreams = [];
+    collections.forEach(collection => {
+      const changeStream = db.collection(collection).watch([], { fullDocument: 'updateLookup' });
+      changeStream.on('change', change => {
+        if (change.operationType === 'insert' || change.operationType === 'update') {
+          return;
+        }
+        res.write(`event: ${collection}\n`);
+        res.write(`data: ${JSON.stringify(change.fullDocument)}\n\n`);
+      });
+      changeStreams.push(changeStream);
+    });
+
+    req.on('close', () => {
+      changeStreams.forEach(changeStream => changeStream.close());
+      res.end();
+    });
   });
 }
