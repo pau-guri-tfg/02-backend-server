@@ -10,6 +10,11 @@ app.use(cors());
 registerDatabaseEndpoints(app);
 registerRiotApiEndpoints(app);
 
+// ping
+app.get('/ping', (req, res) => {
+  res.send(new Date().toLocaleTimeString() + ' pong');
+});
+
 // INITIALIZATION
 const port = process.env.PORT ?? 3000;
 app.listen(port, () => {
