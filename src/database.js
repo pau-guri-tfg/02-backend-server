@@ -196,6 +196,8 @@ export function registerDatabaseEndpoints(app) {
       changeStreams.push(changeStream);
     });
 
+    console.log('New event stream started');
+
     req.on('close', () => {
       changeStreams.forEach(changeStream => changeStream.close());
       res.end();

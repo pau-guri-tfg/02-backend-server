@@ -12,7 +12,8 @@ registerRiotApiEndpoints(app);
 
 // ping
 app.get('/ping', (req, res) => {
-  res.send(new Date().toLocaleTimeString() + ' pong');
+  console.log(new Date().toLocaleTimeString() + ' - ping');
+  res.send(new Date().toLocaleTimeString() + ' - pong');
 });
 
 // INITIALIZATION
