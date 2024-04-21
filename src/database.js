@@ -22,11 +22,6 @@ const prefix = '/database';
 
 export function registerDatabaseEndpoints(app) {
   app.post(prefix + '/games/:gameId/players', async (req, res) => {
-    if (!mongoClient.isConnected()) {
-      res.status(500).send("Database is not connected.");
-      return;
-    }
-
     const gameId = req.params.gameId;
     const players = req.body;
 
@@ -60,11 +55,6 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.patch(prefix + '/games/:gameId/players', async (req, res) => {
-    if (!mongoClient.isConnected()) {
-      res.status(500).send("Database is not connected.");
-      return;
-    }
-
     const gameId = req.params.gameId;
     const players = req.body;
 
@@ -88,11 +78,6 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.post(prefix + '/games/:gameId/gamedata', async (req, res) => {
-    if (!mongoClient.isConnected()) {
-      res.status(500).send("Database is not connected.");
-      return;
-    }
-
     const gameId = req.params.gameId;
     const gameData = req.body;
 
@@ -126,11 +111,6 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.patch(prefix + '/games/:gameId/gamedata', async (req, res) => {
-    if (!mongoClient.isConnected()) {
-      res.status(500).send("Database is not connected.");
-      return;
-    }
-
     const gameId = req.params.gameId;
     const gameData = req.body;
 
@@ -148,11 +128,6 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.put(prefix + '/games/:gameId/events', async (req, res) => {
-    if (!mongoClient.isConnected()) {
-      res.status(500).send("Database is not connected.");
-      return;
-    }
-
     const gameId = req.params.gameId;
     const events = req.body;
 
@@ -173,11 +148,6 @@ export function registerDatabaseEndpoints(app) {
 
   // SERVER-SENT EVENTS
   app.get(prefix + '/event-stream', (req, res) => {
-    if (!mongoClient.isConnected()) {
-      res.status(500).send("Database is not connected.");
-      return;
-    }
-
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
