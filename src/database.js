@@ -149,19 +149,49 @@ export function registerDatabaseEndpoints(app) {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    const collections = ['players', 'gamedata', 'events'];
-    let changeStreams = [];
-    collections.forEach(collection => {
-      const changeStream = db.collection(collection).watch([], { fullDocument: 'updateLookup' });
-      changeStream.on('change', change => {
-        if (change.operationType === 'insert' || change.operationType === 'update') {
-          return;
-        }
-        res.write(`event: ${collection}\n`);
-        res.write(`data: ${JSON.stringify(change.fullDocument)}\n\n`);
-      });
-      changeStreams.push(changeStream);
+    // watch gamedata
+    const gameDataStream = db.collection('gamedata').watch([], { fullDocument: 'updateLookup' });
+    gameDataStream.on('change', change => {
+      if (change.operationType === 'insert' || change.operationType === 'update') {
+        return;
+      }
+      res.write(`event: gamedata`);
+      res.write(`data: ${JSON.stringify(change.fullDocument)}\n\n`);
     });
+
+    // watch players
+    const playersStream = db.collection('players').watch([], { fullDocument: 'updateLookup' });
+    playersStream.on('change', change => {
+      if (change.operationType === 'insert' || change.operationType === 'update') {
+        return;
+      }
+      res.write(`event: players`);
+      res.write(`data: ${JSON.stringify(change.fullDocument)}\n\n`);
+    });
+
+    // watch events
+    const eventsStream = db.collection('events').watch([], { fullDocument: 'updateLookup' });
+    eventsStream.on('change', change => {
+      if (change.operationType === 'insert' || change.operationType === 'update') {
+        return;
+      }
+      res.write(`event: events`);
+      res.write(`data: ${JSON.stringify(change.fullDocument)}\n\n`);
+    });
+
+    // const collections = ['players', 'gamedata', 'events'];
+    // let changeStreams = [];
+    // collections.forEach(collection => {
+    //   const changeStream = db.collection(collection).watch([], { fullDocument: 'updateLookup' });
+    //   changeStream.on('change', change => {
+    //     if (change.operationType === 'insert' || change.operationType === 'update') {
+    //       return;
+    //     }
+    //     res.write(`event: ${collection}\n`);
+    //     res.write(`data: ${JSON.stringify(change.fullDocument)}\n\n`);
+    //   });
+    //   changeStreams.push(changeStream);
+    // });
 
     console.log('New event stream started');
 
