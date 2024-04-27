@@ -18,6 +18,9 @@ const db = mongoClient.db(process.env.MONGODB_GAMES_DB);
 const prefix = '/database';
 
 export function registerDatabaseEndpoints(app) {
+
+  // POSTS
+
   app.post(prefix + '/games/:gameId/players', async (req, res) => {
     const gameId = req.params.gameId;
     const players = req.body;
@@ -141,6 +144,57 @@ export function registerDatabaseEndpoints(app) {
         console.error(e);
         res.status(500).send(e);
       });
+  });
+
+  // GETS
+
+  app.get(prefix + '/games/:gameId/players', async (req, res) => {
+    const gameId = req.params.gameId;
+
+    try {
+      const players = await db.collection('players').find({ gameId }).toArray();
+      if (players.length === 0) {
+        console.log('Players for game', gameId, 'not found');
+        res.status(404).send("Players not found for this game");
+        return;
+      }
+      res.send(players);
+    } catch (e) {
+      console.error(e);
+      res.status(500).send(e);
+    }
+  });
+  app.get(prefix + '/games/:gameId/gamedata', async (req, res) => {
+    const gameId = req.params.gameId;
+
+    try {
+      const gameData = await db.collection('gamedata').findOne({ gameId });
+      if (gameData === null) {
+        console.log('Gamedata for game', gameId, 'not found');
+        res.status(404).send("Gamedata not found for this game");
+        return;
+      }
+      res.send(gameData);
+    } catch (e) {
+      console.error(e);
+      res.status(500).send(e);
+    }
+  });
+  app.get(prefix + '/games/:gameId/events', async (req, res) => {
+    const gameId = req.params.gameId;
+
+    try {
+      const events = await db.collection('events').findOne({ gameId });
+      if (events === null) {
+        console.log('Events for game', gameId, 'not found');
+        res.status(404).send("Events not found for this game");
+        return;
+      }
+      res.send(events);
+    } catch (e) {
+      console.error(e);
+      res.status(404).send(e);
+    }
   });
 
   // SERVER-SENT EVENTS
