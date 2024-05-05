@@ -15,13 +15,13 @@ const mongoClient = new MongoClient(uri, {
 // games database is harcoded for now
 const db = mongoClient.db(process.env.MONGODB_GAMES_DB);
 
-const prefix = '/database';
+const prefix = '/games';
 
 export function registerDatabaseEndpoints(app) {
 
   // POSTS
 
-  app.post(prefix + '/games/:gameId/players', async (req, res) => {
+  app.post(prefix + '/:gameId/players', async (req, res) => {
     const gameId = req.params.gameId;
     const players = req.body;
 
@@ -54,7 +54,7 @@ export function registerDatabaseEndpoints(app) {
       });
   });
 
-  app.patch(prefix + '/games/:gameId/players', async (req, res) => {
+  app.patch(prefix + '/:gameId/players', async (req, res) => {
     const gameId = req.params.gameId;
     const players = req.body;
 
@@ -77,7 +77,7 @@ export function registerDatabaseEndpoints(app) {
       });
   });
 
-  app.post(prefix + '/games/:gameId/gamedata', async (req, res) => {
+  app.post(prefix + '/:gameId/gamedata', async (req, res) => {
     const gameId = req.params.gameId;
     const gameData = req.body;
 
@@ -110,7 +110,7 @@ export function registerDatabaseEndpoints(app) {
       });
   });
 
-  app.patch(prefix + '/games/:gameId/gamedata', async (req, res) => {
+  app.patch(prefix + '/:gameId/gamedata', async (req, res) => {
     const gameId = req.params.gameId;
     const gameData = req.body;
 
@@ -127,7 +127,7 @@ export function registerDatabaseEndpoints(app) {
       });
   });
 
-  app.put(prefix + '/games/:gameId/events', async (req, res) => {
+  app.put(prefix + '/:gameId/events', async (req, res) => {
     const gameId = req.params.gameId;
     const events = req.body;
 
@@ -148,7 +148,7 @@ export function registerDatabaseEndpoints(app) {
 
   // GETS
 
-  app.get(prefix + '/games/:gameId/players', async (req, res) => {
+  app.get(prefix + '/:gameId/players', async (req, res) => {
     const gameId = req.params.gameId;
 
     try {
@@ -164,7 +164,7 @@ export function registerDatabaseEndpoints(app) {
       res.status(500).send(e);
     }
   });
-  app.get(prefix + '/games/:gameId/gamedata', async (req, res) => {
+  app.get(prefix + '/:gameId/gamedata', async (req, res) => {
     const gameId = req.params.gameId;
 
     try {
@@ -180,7 +180,7 @@ export function registerDatabaseEndpoints(app) {
       res.status(500).send(e);
     }
   });
-  app.get(prefix + '/games/:gameId/events', async (req, res) => {
+  app.get(prefix + '/:gameId/events', async (req, res) => {
     const gameId = req.params.gameId;
 
     try {

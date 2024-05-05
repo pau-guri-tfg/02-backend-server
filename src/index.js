@@ -1,7 +1,7 @@
 // EXPRESS SETUP
 import express from 'express';
 import cors from 'cors';
-import { registerDatabaseEndpoints } from './database.js';
+import { registerDatabaseEndpoints } from './gamesDatabase.js';
 import { registerRiotApiEndpoints } from './riotApi.js';
 const app = express();
 app.use(express.json());
