@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(cors());
 
 registerDatabaseEndpoints(app);
-registerRiotApiEndpoints(app);
+// ! registerRiotApiEndpoints(app); deprecated
 
 // ping
 app.get('/ping', (req, res) => {
