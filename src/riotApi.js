@@ -3,6 +3,11 @@ const prefix = "/riot-api";
 
 export function registerRiotApiEndpoints(app) {
   app.get(prefix + "/account/:gameName/:tagLine", async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     const gameName = req.params.gameName;
     const tagLine = req.params.tagLine;
     console.log("GET /riot-api/account/" + gameName + "/" + tagLine);
@@ -22,6 +27,11 @@ export function registerRiotApiEndpoints(app) {
   });
 
   app.get(prefix + "/summoner/:puuid", async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     const puuid = req.params.puuid;
     console.log("GET /riot-api/summoner/" + puuid);
 
@@ -58,6 +68,11 @@ export function registerRiotApiEndpoints(app) {
   // });
 
   app.get(prefix + "/league/:summonerId", async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     const summonerId = req.params.summonerId;
     console.log("GET /riot-api/league/" + summonerId);
 

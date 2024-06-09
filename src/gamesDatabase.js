@@ -1,4 +1,5 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
+import auth from './auth';
 const uri = process.env.MONGODB_URI;
 if (!uri) {
   console.error('MONGODB_URI is not set');
@@ -22,6 +23,11 @@ export function registerDatabaseEndpoints(app) {
   // #region POSTS
 
   app.post(prefix + '/:gameId/players', async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     const gameId = req.params.gameId;
     const players = req.body;
 
@@ -55,6 +61,11 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.patch(prefix + '/:gameId/players', async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     const gameId = req.params.gameId;
     const players = req.body;
 
@@ -78,6 +89,11 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.post(prefix + '/:gameId/gamedata', async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     const gameId = req.params.gameId;
     const gameData = req.body;
 
@@ -111,6 +127,11 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.patch(prefix + '/:gameId/gamedata', async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     const gameId = req.params.gameId;
     const gameData = req.body;
 
@@ -128,6 +149,11 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.put(prefix + '/:gameId/events', async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     const gameId = req.params.gameId;
     const events = req.body;
 
@@ -151,6 +177,11 @@ export function registerDatabaseEndpoints(app) {
   // #region GETS
 
   app.get(prefix + '/:gameId', async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     const gameId = req.params.gameId;
 
     try {
@@ -230,6 +261,11 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.get(prefix + '/:gameId/players', async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     const gameId = req.params.gameId;
 
     try {
@@ -246,6 +282,11 @@ export function registerDatabaseEndpoints(app) {
     }
   });
   app.get(prefix + '/:gameId/gamedata', async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     const gameId = req.params.gameId;
     let gameData;
     try {
@@ -267,6 +308,11 @@ export function registerDatabaseEndpoints(app) {
     }
   });
   app.get(prefix + '/:gameId/events', async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     const gameId = req.params.gameId;
 
     try {
@@ -284,6 +330,11 @@ export function registerDatabaseEndpoints(app) {
   });
 
   app.get('/games-by-player/:summonerId/players', async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     const summonerId = req.params.summonerId;
 
     try {
@@ -304,6 +355,11 @@ export function registerDatabaseEndpoints(app) {
 
   // #region SERVER-SENT EVENTS
   app.get(prefix + '/event-stream', (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
