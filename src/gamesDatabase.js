@@ -226,6 +226,12 @@ export function registerDatabaseEndpoints(app) {
               _id: 0
             }
           },
+          {
+            $skip: req.query.skip ? parseInt(req.query.skip) : 0
+          },
+          {
+            $limit: req.query.limit ? parseInt(req.query.limit) : 20
+          }
         ]).toArray();
         if (data.length === 0) {
           console.log('No games found');
@@ -290,11 +296,7 @@ export function registerDatabaseEndpoints(app) {
     const gameId = req.params.gameId;
     let gameData;
     try {
-      if (gameId === 'all') {
-        gameData = await db.collection('gamedata').find().toArray();
-      } else {
-        gameData = await db.collection('gamedata').findOne({ gameId });
-      }
+      gameData = await db.collection('gamedata').findOne({ gameId });
 
       if (gameData === null) {
         console.log('Gamedata for game', gameId, 'not found');
@@ -329,7 +331,7 @@ export function registerDatabaseEndpoints(app) {
     }
   });
 
-  app.get('/games-by-player/:summonerId/players', async (req, res) => {
+  app.get('/games-by-player/:summonerId/everything', async (req, res) => {
     if (!auth(req)) {
       res.status(401).send('Unauthorized');
       return;
@@ -340,11 +342,69 @@ export function registerDatabaseEndpoints(app) {
     try {
       const players = await db.collection('players').find({ summonerId }).toArray();
       if (players.length === 0) {
-        console.log('Player with summonerId', summonerId, 'not found');
-        res.status(404).send("Player not found with this riotId");
+        console.log('Players with summoner ID', summonerId, 'not found');
+        res.status(404).send("Player not found for this summoner ID");
         return;
       }
-      res.send(players);
+
+      const games = await db.collection('gamedata').aggregate([
+        {
+          $match: {
+            gameId: { $in: players.map(player => player.gameId) }
+          }
+        },
+        {
+          $lookup: {
+            from: 'players',
+            localField: 'gameId',
+            foreignField: 'gameId',
+            as: 'players'
+          }
+        },
+        {
+          $lookup: {
+            from: 'events',
+            localField: 'gameId',
+            foreignField: 'gameId',
+            as: 'events'
+          }
+        },
+        {
+          $project: {
+            gameData: {
+              $let: {
+                vars: {
+                  root: "$$ROOT",
+                },
+                in: {
+                  $arrayToObject: {
+                    $filter: {
+                      input: { $objectToArray: "$$root" },
+                      as: "root",
+                      cond: { $not: { $in: ["$$root.k", ["players", "events"]] } }
+                    }
+                  }
+                }
+              }
+            },
+            players: 1,
+            events: 1,
+            _id: 0
+          }
+        },
+        {
+          $skip: req.query.skip ? parseInt(req.query.skip) : 0
+        },
+        {
+          $limit: req.query.limit ? parseInt(req.query.limit) : 20
+        }
+      ]).toArray();
+      if (games.length === 0) {
+        console.log('No games found');
+        res.status(404).send("No games found");
+        return;
+      }
+      res.send(games);
     } catch (e) {
       console.error(e);
       res.status(500).send(e);
