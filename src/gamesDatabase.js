@@ -1,5 +1,5 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
-import auth from './auth';
+import auth from './auth.js';
 const uri = process.env.MONGODB_URI;
 if (!uri) {
   console.error('MONGODB_URI is not set');
