@@ -19,7 +19,7 @@ const prefix = '/games';
 
 export function registerDatabaseEndpoints(app) {
 
-  // POSTS
+  // #region POSTS
 
   app.post(prefix + '/:gameId/players', async (req, res) => {
     const gameId = req.params.gameId;
@@ -146,31 +146,54 @@ export function registerDatabaseEndpoints(app) {
       });
   });
 
-  // GETS
+  // #endregion
+
+  // #region GETS
 
   app.get(prefix + '/:gameId', async (req, res) => {
     const gameId = req.params.gameId;
 
     try {
-      const gameData = await db.collection('gamedata').findOne({ gameId });
-      if (gameData === null) {
-        console.log('Gamedata for game', gameId, 'not found');
-        res.status(404).send("Gamedata not found for this game");
-        return;
-      }
-      const players = await db.collection('players').find({ gameId }).toArray();
-      if (players.length === 0) {
-        console.log('Players for game', gameId, 'not found');
-        res.status(404).send("Players not found for this game");
-        return;
-      }
-      const events = await db.collection('events').findOne({ gameId });
-      if (events === null) {
-        console.log('Events for game', gameId, 'not found');
-        res.status(404).send("Events not found for this game");
-        return;
-      }
-      res.send({ gameData, players, events });
+      const data = await db.collection('gamedata').aggregate([
+        { $match: { gameId } },
+        {
+          $lookup: {
+            from: 'players',
+            localField: 'gameId',
+            foreignField: 'gameId',
+            as: 'players'
+          }
+        },
+        {
+          $lookup: {
+            from: 'events',
+            localField: 'gameId',
+            foreignField: 'gameId',
+            as: 'events'
+          }
+        }
+      ]).toArray();
+
+      // const gameData = await db.collection('gamedata').findOne({ gameId });
+      // if (gameData === null) {
+      //   console.log('Gamedata for game', gameId, 'not found');
+      //   res.status(404).send("Gamedata not found for this game");
+      //   return;
+      // }
+      // const players = await db.collection('players').find({ gameId }).toArray();
+      // if (players.length === 0) {
+      //   console.log('Players for game', gameId, 'not found');
+      //   res.status(404).send("Players not found for this game");
+      //   return;
+      // }
+      // const events = await db.collection('events').findOne({ gameId });
+      // if (events === null) {
+      //   console.log('Events for game', gameId, 'not found');
+      //   res.status(404).send("Events not found for this game");
+      //   return;
+      // }
+      console.log(data);
+      res.send(data);
     } catch (e) {
       console.error(e);
       res.status(500).send(e);
@@ -248,7 +271,9 @@ export function registerDatabaseEndpoints(app) {
     }
   });
 
-  // SERVER-SENT EVENTS
+  //#endregion
+
+  // #region SERVER-SENT EVENTS
   app.get(prefix + '/event-stream', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -282,4 +307,5 @@ export function registerDatabaseEndpoints(app) {
       res.status(500).send(e);
     };
   });
+  //#endregion
 }
