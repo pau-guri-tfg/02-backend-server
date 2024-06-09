@@ -174,12 +174,33 @@ export function registerDatabaseEndpoints(app) {
           },
           {
             $project: {
-              gameData: "$$ROOT",
-              players: "$players",
-              events: "$events"
+              gameData: {
+                $let: {
+                  vars: {
+                    root: "$$ROOT",
+                  },
+                  in: {
+                    $arrayToObject: {
+                      $filter: {
+                        input: { $objectToArray: "$$root" },
+                        as: "root",
+                        cond: { $not: { $in: ["$$root.k", ["players", "events"]] } }
+                      }
+                    }
+                  }
+                }
+              },
+              players: 1,
+              events: 1,
+              _id: 0
             }
-          }
+          },
         ]).toArray();
+        if (data.length === 0) {
+          console.log('No games found');
+          res.status(404).send("No games found");
+          return;
+        }
         res.send(data);
       } else {
         const gameData = await db.collection('gamedata').findOne({ gameId });
@@ -262,7 +283,7 @@ export function registerDatabaseEndpoints(app) {
     }
   });
 
-  app.get('/games-by-player/:summonerId', async (req, res) => {
+  app.get('/games-by-player/:summonerId/players', async (req, res) => {
     const summonerId = req.params.summonerId;
 
     try {
