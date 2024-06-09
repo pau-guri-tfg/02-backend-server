@@ -231,6 +231,9 @@ export function registerDatabaseEndpoints(app) {
           },
           {
             $limit: req.query.limit ? parseInt(req.query.limit) : 20
+          },
+          {
+            $sort: { "gamedata.gameStartTime": -1 }
           }
         ]).toArray();
         if (data.length === 0) {
@@ -397,6 +400,9 @@ export function registerDatabaseEndpoints(app) {
         },
         {
           $limit: req.query.limit ? parseInt(req.query.limit) : 20
+        },
+        {
+          $sort: { "gamedata.gameStartTime": -1 }
         }
       ]).toArray();
       if (games.length === 0) {
