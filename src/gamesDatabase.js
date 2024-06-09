@@ -176,7 +176,7 @@ export function registerDatabaseEndpoints(app) {
 
   // #region GETS
 
-  app.get(prefix + '/:gameId', async (req, res) => {
+  app.get(prefix + '/:gameId/everything', async (req, res) => {
     if (!auth(req)) {
       res.status(401).send('Unauthorized');
       return;
