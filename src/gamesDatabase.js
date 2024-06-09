@@ -195,9 +195,14 @@ export function registerDatabaseEndpoints(app) {
   });
   app.get(prefix + '/:gameId/gamedata', async (req, res) => {
     const gameId = req.params.gameId;
-
+    let gameData;
     try {
-      const gameData = await db.collection('gamedata').findOne({ gameId });
+      if (gameId === 'all') {
+        gameData = await db.collection('gamedata').find().toArray();
+      } else {
+        gameData = await db.collection('gamedata').findOne({ gameId });
+      }
+
       if (gameData === null) {
         console.log('Gamedata for game', gameId, 'not found');
         res.status(404).send("Gamedata not found for this game");
@@ -220,21 +225,6 @@ export function registerDatabaseEndpoints(app) {
         return;
       }
       res.send(events);
-    } catch (e) {
-      console.error(e);
-      res.status(500).send(e);
-    }
-  });
-
-  app.get(prefix + "/all/gamedata", async (req, res) => {
-    try {
-      const gameData = await db.collection('gamedata').find().toArray();
-      if (gameData === null) {
-        console.log('Gamedata not found');
-        res.status(404).send("Gamedata not found");
-        return;
-      }
-      res.send(gameData);
     } catch (e) {
       console.error(e);
       res.status(500).send(e);
