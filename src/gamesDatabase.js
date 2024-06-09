@@ -154,46 +154,54 @@ export function registerDatabaseEndpoints(app) {
     const gameId = req.params.gameId;
 
     try {
-      const data = await db.collection('gamedata').aggregate([
-        { $match: { gameId } },
-        {
-          $lookup: {
-            from: 'players',
-            localField: 'gameId',
-            foreignField: 'gameId',
-            as: 'players'
+      if (gameId === 'all') {
+        const data = await db.collection('gamedata').aggregate([
+          {
+            $lookup: {
+              from: 'players',
+              localField: 'gameId',
+              foreignField: 'gameId',
+              as: 'players'
+            }
+          },
+          {
+            $lookup: {
+              from: 'events',
+              localField: 'gameId',
+              foreignField: 'gameId',
+              as: 'events'
+            }
+          },
+          {
+            $project: {
+              gameData: "$$ROOT",
+              players: "$players",
+              events: "$events"
+            }
           }
-        },
-        {
-          $lookup: {
-            from: 'events',
-            localField: 'gameId',
-            foreignField: 'gameId',
-            as: 'events'
-          }
+        ]).toArray();
+        res.send(data);
+      } else {
+        const gameData = await db.collection('gamedata').findOne({ gameId });
+        if (gameData === null) {
+          console.log('Gamedata for game', gameId, 'not found');
+          res.status(404).send("Gamedata not found for this game");
+          return;
         }
-      ]).toArray();
-
-      // const gameData = await db.collection('gamedata').findOne({ gameId });
-      // if (gameData === null) {
-      //   console.log('Gamedata for game', gameId, 'not found');
-      //   res.status(404).send("Gamedata not found for this game");
-      //   return;
-      // }
-      // const players = await db.collection('players').find({ gameId }).toArray();
-      // if (players.length === 0) {
-      //   console.log('Players for game', gameId, 'not found');
-      //   res.status(404).send("Players not found for this game");
-      //   return;
-      // }
-      // const events = await db.collection('events').findOne({ gameId });
-      // if (events === null) {
-      //   console.log('Events for game', gameId, 'not found');
-      //   res.status(404).send("Events not found for this game");
-      //   return;
-      // }
-      console.log(data);
-      res.send(data);
+        const players = await db.collection('players').find({ gameId }).toArray();
+        if (players.length === 0) {
+          console.log('Players for game', gameId, 'not found');
+          res.status(404).send("Players not found for this game");
+          return;
+        }
+        const events = await db.collection('events').findOne({ gameId });
+        if (events === null) {
+          console.log('Events for game', gameId, 'not found');
+          res.status(404).send("Events not found for this game");
+          return;
+        }
+        res.send({ gameData, players, events });
+      }
     } catch (e) {
       console.error(e);
       res.status(500).send(e);
@@ -254,7 +262,7 @@ export function registerDatabaseEndpoints(app) {
     }
   });
 
-  app.get('/players/:summonerId', async (req, res) => {
+  app.get('/games-by-player/:summonerId', async (req, res) => {
     const summonerId = req.params.summonerId;
 
     try {
