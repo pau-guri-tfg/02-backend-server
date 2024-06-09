@@ -148,6 +148,35 @@ export function registerDatabaseEndpoints(app) {
 
   // GETS
 
+  app.get(prefix + '/:gameId', async (req, res) => {
+    const gameId = req.params.gameId;
+
+    try {
+      const gameData = await db.collection('gamedata').findOne({ gameId });
+      if (gameData === null) {
+        console.log('Gamedata for game', gameId, 'not found');
+        res.status(404).send("Gamedata not found for this game");
+        return;
+      }
+      const players = await db.collection('players').find({ gameId }).toArray();
+      if (players.length === 0) {
+        console.log('Players for game', gameId, 'not found');
+        res.status(404).send("Players not found for this game");
+        return;
+      }
+      const events = await db.collection('events').findOne({ gameId });
+      if (events === null) {
+        console.log('Events for game', gameId, 'not found');
+        res.status(404).send("Events not found for this game");
+        return;
+      }
+      res.send({ gameData, players, events });
+    } catch (e) {
+      console.error(e);
+      res.status(500).send(e);
+    }
+  });
+
   app.get(prefix + '/:gameId/players', async (req, res) => {
     const gameId = req.params.gameId;
 
@@ -193,7 +222,22 @@ export function registerDatabaseEndpoints(app) {
       res.send(events);
     } catch (e) {
       console.error(e);
-      res.status(404).send(e);
+      res.status(500).send(e);
+    }
+  });
+
+  app.get(prefix + "/all/gamedata", async (req, res) => {
+    try {
+      const gameData = await db.collection('gamedata').find().toArray();
+      if (gameData === null) {
+        console.log('Gamedata not found');
+        res.status(404).send("Gamedata not found");
+        return;
+      }
+      res.send(gameData);
+    } catch (e) {
+      console.error(e);
+      res.status(500).send(e);
     }
   });
 
