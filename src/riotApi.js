@@ -1,4 +1,5 @@
 import axios from "axios";
+import auth from "./auth";
 const prefix = "/riot-api";
 
 export function registerRiotApiEndpoints(app) {
