@@ -5,7 +5,10 @@ import { registerDatabaseEndpoints } from './gamesDatabase.js';
 import { registerRiotApiEndpoints } from './riotApi.js';
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://tfg-pau-guri.netlify.app'],
+  optionsSuccessStatus: 200
+}));
 
 registerDatabaseEndpoints(app);
 registerRiotApiEndpoints(app);
