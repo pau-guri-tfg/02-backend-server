@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(cors({ origin: 'http://localhost:5173' }));
 
 registerDatabaseEndpoints(app);
-// ! registerRiotApiEndpoints(app); deprecated
+registerRiotApiEndpoints(app);
 
 // ping
 app.get('/ping', (req, res) => {

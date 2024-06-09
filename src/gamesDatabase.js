@@ -197,6 +197,23 @@ export function registerDatabaseEndpoints(app) {
     }
   });
 
+  app.get('/players/:summonerId', async (req, res) => {
+    const summonerId = req.params.summonerId;
+
+    try {
+      const players = await db.collection('players').find({ summonerId }).toArray();
+      if (players.length === 0) {
+        console.log('Player with summonerId', summonerId, 'not found');
+        res.status(404).send("Player not found with this riotId");
+        return;
+      }
+      res.send(players);
+    } catch (e) {
+      console.error(e);
+      res.status(500).send(e);
+    }
+  });
+
   // SERVER-SENT EVENTS
   app.get(prefix + '/event-stream', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
