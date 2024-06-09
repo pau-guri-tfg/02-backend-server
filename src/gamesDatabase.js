@@ -95,13 +95,13 @@ export function registerDatabaseEndpoints(app) {
     }
 
     const gameId = req.params.gameId;
-    const gameData = req.body;
+    const gamedata = req.body;
 
     // check if gamedata with this gameId already exists
     try {
-      const gameData = await db.collection('gamedata').findOne({ gameId });
+      const gamedata = await db.collection('gamedata').findOne({ gameId });
 
-      if (gameData !== null) {
+      if (gamedata !== null) {
         console.log('Gamedata for game', gameId, 'already exist');
         res.status(409).send("Gamedata already exists for this game. Use PATCH to update.");
         return;
@@ -112,7 +112,7 @@ export function registerDatabaseEndpoints(app) {
     }
 
     // insert gamedata
-    const gamedataWithGameId = { ...gameData, gameId };
+    const gamedataWithGameId = { ...gamedata, gameId };
 
     console.log('Received new gamedata for game', gameId);
     db.collection('gamedata').insertOne(gamedataWithGameId)
@@ -133,11 +133,11 @@ export function registerDatabaseEndpoints(app) {
     }
 
     const gameId = req.params.gameId;
-    const gameData = req.body;
+    const gamedata = req.body;
 
     // update gamedata
     console.log('Received updated game data for game', gameId);
-    db.collection('gamedata').updateOne({ gameId }, { $set: gameData })
+    db.collection('gamedata').updateOne({ gameId }, { $set: gamedata })
       .then(() => {
         console.log("201 Updated entry in 'gamedata' collection");
         res.status(201).send();
@@ -205,7 +205,7 @@ export function registerDatabaseEndpoints(app) {
           },
           {
             $project: {
-              gameData: {
+              gamedata: {
                 $let: {
                   vars: {
                     root: "$$ROOT",
@@ -240,8 +240,8 @@ export function registerDatabaseEndpoints(app) {
         }
         res.send(data);
       } else {
-        const gameData = await db.collection('gamedata').findOne({ gameId });
-        if (gameData === null) {
+        const gamedata = await db.collection('gamedata').findOne({ gameId });
+        if (gamedata === null) {
           console.log('Gamedata for game', gameId, 'not found');
           res.status(404).send("Gamedata not found for this game");
           return;
@@ -258,7 +258,7 @@ export function registerDatabaseEndpoints(app) {
           res.status(404).send("Events not found for this game");
           return;
         }
-        res.send({ gameData, players, events });
+        res.send({ gamedata, players, events });
       }
     } catch (e) {
       console.error(e);
@@ -294,16 +294,16 @@ export function registerDatabaseEndpoints(app) {
     }
 
     const gameId = req.params.gameId;
-    let gameData;
+    let gamedata;
     try {
-      gameData = await db.collection('gamedata').findOne({ gameId });
+      gamedata = await db.collection('gamedata').findOne({ gameId });
 
-      if (gameData === null) {
+      if (gamedata === null) {
         console.log('Gamedata for game', gameId, 'not found');
         res.status(404).send("Gamedata not found for this game");
         return;
       }
-      res.send(gameData);
+      res.send(gamedata);
     } catch (e) {
       console.error(e);
       res.status(500).send(e);
@@ -371,7 +371,7 @@ export function registerDatabaseEndpoints(app) {
         },
         {
           $project: {
-            gameData: {
+            gamedata: {
               $let: {
                 vars: {
                   root: "$$ROOT",
