@@ -21,7 +21,7 @@ export function registerRiotApiEndpoints(app) {
     res.json(playerData);
   });
 
-  app.get(prefix = "/summoner/:puuid", async (req, res) => {
+  app.get(prefix + "/summoner/:puuid", async (req, res) => {
     const puuid = req.params.puuid;
     console.log("GET /riot-api/summoner/" + puuid);
 
