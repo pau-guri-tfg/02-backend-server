@@ -228,7 +228,7 @@ export function registerDatabaseEndpoints(app) {
                 }
               },
               players: 1,
-              events: 1,
+              events: { $arrayElemAt: ["$events", 0] },
               _id: 0
             }
           },
@@ -402,7 +402,7 @@ export function registerDatabaseEndpoints(app) {
               }
             },
             players: 1,
-            events: 1,
+            events: { $arrayElemAt: ["$events", 0] },
             _id: 0
           }
         },
