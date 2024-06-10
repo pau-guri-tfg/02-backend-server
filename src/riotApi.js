@@ -90,6 +90,29 @@ export function registerRiotApiEndpoints(app) {
     }
     res.json(leagueData);
   });
+
+  app.get(prefix + "/match/:matchId", async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
+    const matchId = req.params.matchId;
+    console.log("GET /riot-api/match/" + matchId);
+
+    const matchData = await getMatchData(matchId)
+      .then(response => response.data)
+      .catch(error => {
+        console.error("Error", error.response.data);
+        res.statusMessage = error.response.data.status.message;
+        res.status(error.response.status).send();
+        return false;
+      });
+    if (!matchData) {
+      return;
+    }
+    res.json(matchData);
+  });
 }
 
 export function getAccountData(gameName, tagLine) {
@@ -106,4 +129,8 @@ export function getActiveGameData(puuid) {
 
 export function getLeagueData(summonerId) {
   return axios.get(process.env.RIOT_EW1_API_URL + `/lol/league/v4/entries/by-summoner/${summonerId}?api_key=${process.env.RIOT_API_KEY}`);
+}
+
+export function getMatchData(matchId) {
+  return axios.get(process.env.RIOT_EUROPE_API_URL + `/lol/match/v5/matches/${matchId}?api_key=${process.env.RIOT_API_KEY}`);
 }
