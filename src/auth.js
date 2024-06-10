@@ -3,6 +3,7 @@ export default function auth(request) {
   if (apiKey === process.env.INCOMING_API_KEY) {
     return true;
   } else {
+    console.log("Unauthorized request received.");
     return false;
   }
 }

@@ -30,6 +30,7 @@ export function registerDatabaseEndpoints(app) {
 
     const gameId = req.params.gameId;
     const players = req.body;
+    console.log('POST /games/' + gameId + '/players');
 
     // check if players with this gameId already exist
     try {
@@ -68,6 +69,7 @@ export function registerDatabaseEndpoints(app) {
 
     const gameId = req.params.gameId;
     const players = req.body;
+    console.log('PATCH /games/' + gameId + '/players');
 
     // update players
     console.log('Received updated players for game', gameId);
@@ -96,6 +98,7 @@ export function registerDatabaseEndpoints(app) {
 
     const gameId = req.params.gameId;
     const gamedata = req.body;
+    console.log('POST /games/' + gameId + '/gamedata');
 
     // check if gamedata with this gameId already exists
     try {
@@ -134,6 +137,7 @@ export function registerDatabaseEndpoints(app) {
 
     const gameId = req.params.gameId;
     const gamedata = req.body;
+    console.log('PATCH /games/' + gameId + '/gamedata');
 
     // update gamedata
     console.log('Received updated game data for game', gameId);
@@ -156,6 +160,7 @@ export function registerDatabaseEndpoints(app) {
 
     const gameId = req.params.gameId;
     const events = req.body;
+    console.log('PUT /games/' + gameId + '/events');
 
     // insert events (replace old events)
     const eventsWithGameId = { ...events, gameId };
@@ -183,6 +188,7 @@ export function registerDatabaseEndpoints(app) {
     }
 
     const gameId = req.params.gameId;
+    console.log('GET /games/' + gameId + '/everything');
 
     try {
       if (gameId === 'all') {
@@ -276,6 +282,7 @@ export function registerDatabaseEndpoints(app) {
     }
 
     const gameId = req.params.gameId;
+    console.log('GET /games/' + gameId + '/players');
 
     try {
       const players = await db.collection('players').find({ gameId }).toArray();
@@ -297,6 +304,8 @@ export function registerDatabaseEndpoints(app) {
     }
 
     const gameId = req.params.gameId;
+    console.log('GET /games/' + gameId + '/gamedata');
+
     let gamedata;
     try {
       gamedata = await db.collection('gamedata').findOne({ gameId });
@@ -319,6 +328,7 @@ export function registerDatabaseEndpoints(app) {
     }
 
     const gameId = req.params.gameId;
+    console.log('GET /games/' + gameId + '/events');
 
     try {
       const events = await db.collection('events').findOne({ gameId });
@@ -341,6 +351,7 @@ export function registerDatabaseEndpoints(app) {
     }
 
     const summonerId = req.params.summonerId;
+    console.log('GET /games-by-player/' + summonerId + '/everything');
 
     try {
       const players = await db.collection('players').find({ summonerId }).toArray();
@@ -424,6 +435,7 @@ export function registerDatabaseEndpoints(app) {
     }
 
     const summonerId = req.params.summonerId;
+    console.log('GET /games-by-player/' + summonerId + '/players');
 
     try {
       const players = await db.collection('players').find({ summonerId }).toArray();
@@ -447,6 +459,8 @@ export function registerDatabaseEndpoints(app) {
       res.status(401).send('Unauthorized');
       return;
     }
+
+    console.log('GET /games/event-stream');
 
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
