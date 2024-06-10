@@ -428,29 +428,28 @@ export function registerDatabaseEndpoints(app) {
     }
   });
 
-  // ! deprecated
-  // app.get('/games-by-player/:summonerId/players', async (req, res) => {
-  //   if (!auth(req)) {
-  //     res.status(401).send('Unauthorized');
-  //     return;
-  //   }
+  app.get('/games-by-player/:summonerId/players', async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
 
-  //   const summonerId = req.params.summonerId;
-  //   console.log('GET /games-by-player/' + summonerId + '/players');
+    const summonerId = req.params.summonerId;
+    console.log('GET /games-by-player/' + summonerId + '/players');
 
-  //   try {
-  //     const players = await db.collection('players').find({ summonerId }).toArray();
-  //     if (players.length === 0) {
-  //       console.log('Players with summoner ID', summonerId, 'not found');
-  //       res.status(404).send("Player not found for this summoner ID");
-  //       return;
-  //     }
-  //     res.send(players);
-  //   } catch (e) {
-  //     console.error(e);
-  //     res.status(500).send(e);
-  //   }
-  // });
+    try {
+      const players = await db.collection('players').find({ summonerId }).toArray();
+      if (players.length === 0) {
+        console.log('Players with summoner ID', summonerId, 'not found');
+        res.status(404).send("Player not found for this summoner ID");
+        return;
+      }
+      res.send(players);
+    } catch (e) {
+      console.error(e);
+      res.status(500).send(e);
+    }
+  });
 
   //#endregion
 
