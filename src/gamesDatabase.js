@@ -522,33 +522,49 @@ export function registerDatabaseEndpoints(app) {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    try {
-      const collections = ['players', 'gamedata', 'events'];
-      let changeStreams = [];
-      collections.forEach(collection => {
-        const changeStream = db.collection(collection).watch([], { fullDocument: 'updateLookup' });
-        changeStream.on('change', change => {
-          if (change.operationType !== 'insert' && change.operationType !== 'update' && change.operationType !== 'replace') {
-            return;
-          }
-          res.write(`event: ${collection}\n`);
-          //res.write(`data: ${JSON.stringify(change.fullDocument)}\n\n`);
-          res.write(`data: ${JSON.stringify(change)}\n\n`);
-        });
-        changeStreams.push(changeStream);
-      });
+    const collections = ['players', 'gamedata', 'events'];
+  let changeStreams = [];
 
-      console.log('New event stream started');
+  const createChangeStream = (collection) => {
+    const changeStream = db.collection(collection).watch([], { fullDocument: 'updateLookup' });
+    changeStream.on('change', change => {
+      if (change.operationType !== 'insert' && change.operationType !== 'update' && change.operationType !== 'replace') {
+        return;
+      }
+      res.write(`event: ${collection}\n`);
+      res.write(`data: ${JSON.stringify(change)}\n\n`);
+    });
 
-      req.on('close', () => {
-        changeStreams.forEach(changeStream => changeStream.close());
-        res.end();
-      });
+    changeStream.on('error', (error) => {
+      console.error(`Error in change stream for ${collection}:`, error);
+      // Retry creating the change stream after an error
+      changeStream.close();
+      setTimeout(() => {
+        changeStreams = changeStreams.filter(cs => cs !== changeStream);
+        changeStreams.push(createChangeStream(collection));
+        console.log(`Retrying change stream for ${collection}`);
+      }, 5000);
+    });
 
-    } catch (e) {
-      console.error(e);
-      res.status(500).send(e);
-    };
+    return changeStream;
+  };
+
+  try {
+    collections.forEach(collection => {
+      changeStreams.push(createChangeStream(collection));
+    });
+
+    console.log('New event stream started');
+
+    req.on('close', () => {
+      changeStreams.forEach(changeStream => changeStream.close());
+      res.end();
+    });
+
+  } catch (e) {
+    console.error(e);
+    res.status(500).send(e);
+  }
   });
   //#endregion
 }
