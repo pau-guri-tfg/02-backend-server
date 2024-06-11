@@ -306,16 +306,25 @@ export function registerDatabaseEndpoints(app) {
     const gameId = req.params.gameId;
     console.log('GET /games/' + gameId + '/gamedata');
 
-    let gamedata;
     try {
-      gamedata = await db.collection('gamedata').findOne({ gameId });
+      if (gameId === 'all') {
+        const gamedata = await db.collection('gamedata').find().toArray();
+        if (gamedata.length === 0) {
+          console.log('No gamedata found');
+          res.status(404).send("No gamedata found");
+          return;
+        }
+        res.send(gamedata);
+      } else {
+        const gamedata = await db.collection('gamedata').findOne({ gameId });
 
-      if (gamedata === null) {
-        console.log('Gamedata for game', gameId, 'not found');
-        res.status(404).send("Gamedata not found for this game");
-        return;
+        if (gamedata === null) {
+          console.log('Gamedata for game', gameId, 'not found');
+          res.status(404).send("Gamedata not found for this game");
+          return;
+        }
+        res.send(gamedata);
       }
-      res.send(gamedata);
     } catch (e) {
       console.error(e);
       res.status(500).send(e);
@@ -445,6 +454,53 @@ export function registerDatabaseEndpoints(app) {
         return;
       }
       res.send(players);
+    } catch (e) {
+      console.error(e);
+      res.status(500).send(e);
+    }
+  });
+
+  app.get('/games-by-champion/all/players', async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
+    console.log('GET /games-by-champion/all/players');
+
+    try {
+      const games = await db.collection('players').aggregate([
+        {
+          $group: {
+            _id: "$championName",
+            count: { $sum: 1 },
+            players: { $push: "$$ROOT" }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            championName: "$_id",
+            count: 1,
+            players: 1
+          }
+        },
+        {
+          $sort: { count: -1 }
+        },
+        {
+          $skip: req.query.skip ? parseInt(req.query.skip) : 0
+        },
+        {
+          $limit: req.query.limit ? parseInt(req.query.limit) : 50
+        },
+      ]).toArray();
+      if (games.length === 0) {
+        console.log('No champions found');
+        res.status(404).send("No champions found");
+        return;
+      }
+      res.send(games);
     } catch (e) {
       console.error(e);
       res.status(500).send(e);
