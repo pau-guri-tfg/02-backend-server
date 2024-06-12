@@ -13,17 +13,14 @@ export function registerVisitorsDatabaseEndpoints(app, mongoClient) {
     console.log("POST /visitors/visit/");
     const visitor = req.body;
 
-    const result = db.collection("visits").insertOne(visitor)
-      .then(response => response)
-      .catch(error => {
-        console.error("Error", error);
-        res.statusMessage = error;
-        res.status(500).send();
-        return false;
+    db.collection("visits").insertOne(visitor)
+      .then(() => {
+        console.log("201 Created entries in 'players' collection");
+        res.status(201).send();
+      })
+      .catch(e => {
+        console.error(e);
+        res.status(500).send(e);
       });
-    if (!result) {
-      return;
-    }
-    res.json(result);
   });
 }
