@@ -1,24 +1,8 @@
-import { MongoClient, ServerApiVersion } from 'mongodb';
 import auth from './auth.js';
-const uri = process.env.MONGODB_URI;
-if (!uri) {
-  console.error('MONGODB_URI is not set');
-  process.exit(1);
-}
-const mongoClient = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
 
-// games database is harcoded for now
-const db = mongoClient.db(process.env.MONGODB_GAMES_DB);
-
-const prefix = '/games';
-
-export function registerDatabaseEndpoints(app) {
+export function registerGamesDatabaseEndpoints(app, mongoClient) {
+  const db = mongoClient.db(process.env.MONGODB_GAMES_DB);
+  const prefix = '/games';
 
   // #region POSTS
 
@@ -523,48 +507,48 @@ export function registerDatabaseEndpoints(app) {
     res.setHeader('Connection', 'keep-alive');
 
     const collections = ['players', 'gamedata', 'events'];
-  let changeStreams = [];
+    let changeStreams = [];
 
-  const createChangeStream = (collection) => {
-    const changeStream = db.collection(collection).watch([], { fullDocument: 'updateLookup' });
-    changeStream.on('change', change => {
-      if (change.operationType !== 'insert' && change.operationType !== 'update' && change.operationType !== 'replace') {
-        return;
-      }
-      res.write(`event: ${collection}\n`);
-      res.write(`data: ${JSON.stringify(change)}\n\n`);
-    });
+    const createChangeStream = (collection) => {
+      const changeStream = db.collection(collection).watch([], { fullDocument: 'updateLookup' });
+      changeStream.on('change', change => {
+        if (change.operationType !== 'insert' && change.operationType !== 'update' && change.operationType !== 'replace') {
+          return;
+        }
+        res.write(`event: ${collection}\n`);
+        res.write(`data: ${JSON.stringify(change)}\n\n`);
+      });
 
-    changeStream.on('error', (error) => {
-      console.error(`Error in change stream for ${collection}:`, error);
-      // Retry creating the change stream after an error
-      changeStream.close();
-      setTimeout(() => {
-        changeStreams = changeStreams.filter(cs => cs !== changeStream);
+      changeStream.on('error', (error) => {
+        console.error(`Error in change stream for ${collection}:`, error);
+        // Retry creating the change stream after an error
+        changeStream.close();
+        setTimeout(() => {
+          changeStreams = changeStreams.filter(cs => cs !== changeStream);
+          changeStreams.push(createChangeStream(collection));
+          console.log(`Retrying change stream for ${collection}`);
+        }, 5000);
+      });
+
+      return changeStream;
+    };
+
+    try {
+      collections.forEach(collection => {
         changeStreams.push(createChangeStream(collection));
-        console.log(`Retrying change stream for ${collection}`);
-      }, 5000);
-    });
+      });
 
-    return changeStream;
-  };
+      console.log('New event stream started');
 
-  try {
-    collections.forEach(collection => {
-      changeStreams.push(createChangeStream(collection));
-    });
+      req.on('close', () => {
+        changeStreams.forEach(changeStream => changeStream.close());
+        res.end();
+      });
 
-    console.log('New event stream started');
-
-    req.on('close', () => {
-      changeStreams.forEach(changeStream => changeStream.close());
-      res.end();
-    });
-
-  } catch (e) {
-    console.error(e);
-    res.status(500).send(e);
-  }
+    } catch (e) {
+      console.error(e);
+      res.status(500).send(e);
+    }
   });
   //#endregion
 }
