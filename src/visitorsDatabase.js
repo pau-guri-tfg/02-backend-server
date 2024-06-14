@@ -71,14 +71,14 @@ export async function fetchVisitsByTime(db, screen, toTimestamp, timeframe, limi
   let groupBy;
   if (timeframe === 'month') {
     groupBy = {
-      year: { $year: { $toDate: "$timestamp" } },
-      month: { $month: { $toDate: "$timestamp" } },
-      day: { $dayOfMonth: { $toDate: "$timestamp" } }
+      year: { $year: { date: { $toDate: "$timestamp" }, timezone: "$timezone" } },
+      month: { $month: { date: { $toDate: "$timestamp" }, timezone: "$timezone" } },
+      day: { $dayOfMonth: { date: { $toDate: "$timestamp" }, timezone: "$timezone" } }
     }
   } else if (timeframe === 'year') {
     groupBy = {
-      year: { $year: { $toDate: "$timestamp" } },
-      month: { $month: { $toDate: "$timestamp" } },
+      year: { $year: { date: { $toDate: "$timestamp" }, timezone: "$timezone" } },
+      month: { $month: { date: { $toDate: "$timestamp" }, timezone: "$timezone" } },
     }
   }
 
