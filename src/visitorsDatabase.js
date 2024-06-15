@@ -203,7 +203,7 @@ export async function fetchLiveVisitsByGame(db, gameId, limit, offset) {
   // fetch live visits for a specific game
   return db.collection("visits")
     .find({ $and: [{ gameId }, { screen: "live" }] })
-    .project({ _id: 0, timestamp: 1 })
+    .project({ _id: 0, timestamp: 1, screen: 1, gameId: 1 })
     .sort({ timestamp: 1 })
     .limit(limit ?? 100)
     .skip(offset ?? 0)
@@ -241,8 +241,8 @@ export async function fetchSummonerVisitsBySummoner(db, gameName, tagLine, limit
   }
 
   return db.collection("visits")
-    .find({ riotIdGameName: gameName, riotIdTagLine: tagLine })
-    .project({ _id: 0, timestamp: 1 })
+    .find({ $and: [{ riotIdGameName: gameName }, { riotIdTagLine: tagLine }, { screen: "live" }] })
+    .project({ _id: 0, timestamp: 1, screen: 1, riotIdGameName: 1, riotIdTagLine: 1 })
     .sort({ timestamp: 1 })
     .limit(limit ?? 100)
     .skip(offset ?? 0)
