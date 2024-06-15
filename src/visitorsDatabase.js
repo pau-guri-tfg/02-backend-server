@@ -129,10 +129,10 @@ export async function fetchVisitsByTime(db, screen, toTimestamp, timeframe, limi
       }
     },
     {
-      $limit: limit ?? 100
+      $skip: offset ?? 0
     },
     {
-      $skip: offset ?? 0
+      $limit: limit ?? 100
     }
   ]).toArray();
 }
