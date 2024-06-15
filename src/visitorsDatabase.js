@@ -179,7 +179,6 @@ export async function fetchLiveVisitsByGame(db, gameId, limit, offset) {
     // fetch all live visits, grouped by game
     return db.collection("visits").aggregate([
       { $match: { screen: "live" } },
-      { $sort: { timestamp: 1 } },
       {
         $group: {
           _id: "$gameId",
@@ -192,9 +191,11 @@ export async function fetchLiveVisitsByGame(db, gameId, limit, offset) {
         $project: {
           _id: 0,
           gameId: "$_id",
-          timestamps: 1
+          timestamps: 1,
+          count: { $size: "$timestamps" }
         }
       },
+      { $sort: { count: -1 } },
       { $skip: offset ? parseInt(offset) : 0 },
       { $limit: limit ? parseInt(limit) : 100 }
     ]).toArray();
@@ -215,7 +216,6 @@ export async function fetchSummonerVisitsBySummoner(db, gameName, tagLine, limit
     // fetch all summoner visits, grouped by summoner
     return db.collection("visits").aggregate([
       { $match: { screen: "summoner" } },
-      { $sort: { timestamp: 1 } },
       {
         $group: {
           _id: {
@@ -224,7 +224,7 @@ export async function fetchSummonerVisitsBySummoner(db, gameName, tagLine, limit
           },
           timestamps: {
             $push: "$timestamp"
-          }
+          },
         }
       },
       {
@@ -232,9 +232,11 @@ export async function fetchSummonerVisitsBySummoner(db, gameName, tagLine, limit
           _id: 0,
           riotIdGameName: "$_id.riotIdGameName",
           riotIdTagLine: "$_id.riotIdTagLine",
-          timestamps: 1
+          timestamps: 1,
+          count: { $size: "$timestamps" }
         }
       },
+      { $sort: { count: -1 } },
       { $skip: offset ? parseInt(offset) : 0 },
       { $limit: limit ? parseInt(limit) : 100 }
     ]).toArray();

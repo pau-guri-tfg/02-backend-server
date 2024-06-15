@@ -292,7 +292,7 @@ export function registerGamesDatabaseEndpoints(app, mongoClient) {
 
     try {
       if (gameId === 'all') {
-        const gamedata = await db.collection('gamedata').find().toArray();
+        const gamedata = await db.collection('gamedata').find().sort({ gameStartTime: -1 }).toArray();
         if (gamedata.length === 0) {
           console.log('No gamedata found');
           res.status(404).send("No gamedata found");
