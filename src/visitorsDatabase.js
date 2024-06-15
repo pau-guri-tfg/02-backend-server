@@ -87,6 +87,28 @@ export function registerVisitorsDatabaseEndpoints(app, mongoClient) {
     }
   });
 
+  app.get(prefix + '/summoner/all', async (req, res) => {
+    if (!auth(req)) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
+    console.log("GET /visitors/summoner/all");
+
+    try {
+      const data = await fetchSummonerVisitsBySummoner(db, null, null, req.query.limit, req.query.offset);
+      if (data.length === 0) {
+        console.log('No summoner visits found');
+        res.status(404).send("No summoner visits found");
+        return;
+      }
+      res.send(data);
+    } catch (e) {
+      console.error(e);
+      res.status(500).send(e);
+    }
+  });
+
   app.get(prefix + '/summoner/:gameName/:tagLine', async (req, res) => {
     if (!auth(req)) {
       res.status(401).send('Unauthorized');
