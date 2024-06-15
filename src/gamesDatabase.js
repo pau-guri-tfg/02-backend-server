@@ -220,7 +220,7 @@ export function registerGamesDatabaseEndpoints(app, mongoClient) {
             $sort: { "gamedata.gameStartTime": -1 }
           },
           {
-            $skip: req.query.skip ? parseInt(req.query.skip) : 0
+            $skip: req.query.offset ? parseInt(req.query.offset) : 0
           },
           {
             $limit: req.query.limit ? parseInt(req.query.limit) : 20
@@ -403,7 +403,7 @@ export function registerGamesDatabaseEndpoints(app, mongoClient) {
           $sort: { "gamedata.gameStartTime": -1 }
         },
         {
-          $skip: req.query.skip ? parseInt(req.query.skip) : 0
+          $skip: req.query.offset ? parseInt(req.query.offset) : 0
         },
         {
           $limit: req.query.limit ? parseInt(req.query.limit) : 20
@@ -473,7 +473,7 @@ export function registerGamesDatabaseEndpoints(app, mongoClient) {
           $sort: { count: -1 }
         },
         {
-          $skip: req.query.skip ? parseInt(req.query.skip) : 0
+          $skip: req.query.offset ? parseInt(req.query.offset) : 0
         },
         {
           $limit: req.query.limit ? parseInt(req.query.limit) : 50

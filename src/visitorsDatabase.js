@@ -195,8 +195,8 @@ export async function fetchLiveVisitsByGame(db, gameId, limit, offset) {
           timestamps: 1
         }
       },
-      { $skip: offset ?? 0 },
-      { $limit: limit ?? 100 }
+      { $skip: offset ? parseInt(offset) : 0 },
+      { $limit: limit ? parseInt(limit) : 100 }
     ]).toArray();
   }
 
@@ -205,8 +205,8 @@ export async function fetchLiveVisitsByGame(db, gameId, limit, offset) {
     .find({ $and: [{ gameId }, { screen: "live" }] })
     .project({ _id: 0, timestamp: 1, screen: 1, gameId: 1 })
     .sort({ timestamp: 1 })
-    .limit(limit ?? 100)
-    .skip(offset ?? 0)
+    .skip(offset ? parseInt(offset) : 0)
+    .limit(limit ? parseInt(limit) : 100)
     .toArray();
 }
 
@@ -235,8 +235,8 @@ export async function fetchSummonerVisitsBySummoner(db, gameName, tagLine, limit
           timestamps: 1
         }
       },
-      { $skip: offset ?? 0 },
-      { $limit: limit ?? 100 }
+      { $skip: offset ? parseInt(offset) : 0 },
+      { $limit: limit ? parseInt(limit) : 100 }
     ]).toArray();
   }
 
@@ -244,7 +244,7 @@ export async function fetchSummonerVisitsBySummoner(db, gameName, tagLine, limit
     .find({ $and: [{ riotIdGameName: gameName }, { riotIdTagLine: tagLine }, { screen: "live" }] })
     .project({ _id: 0, timestamp: 1, screen: 1, riotIdGameName: 1, riotIdTagLine: 1 })
     .sort({ timestamp: 1 })
-    .limit(limit ?? 100)
-    .skip(offset ?? 0)
+    .skip(offset ? parseInt(offset) : 0)
+    .limit(limit ? parseInt(limit) : 100)
     .toArray();
 }
